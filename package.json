@@ -2,13 +2,31 @@
   "name": "react-bulk-state",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "lib/index.js",
+  "module": "esm/index.js",
+  "sideEffects": false,
+  "files": [
+    "lib/",
+    "esm/"
+  ],
+  "types": "lib/index.d.ts",
+  "typings": "lib/index.d.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build:cjs": "tsc",
+    "build:es": "tsc -m esNext --outDir esm",
+    "build": "yarn build:cjs && yarn build:es"
   },
   "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "author": "@keisokoo",
+  "license": "Unlicense",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/keisokoo/react-bulk-state"
+  },
+  "bugs": {
+    "url": "https://github.com/keisokoo/react-bulk-state/issues"
+  },
+  "homepage": "https://github.com/keisokoo/react-bulk-state#readme",
   "devDependencies": {
     "@types/lodash-es": "^4.17.11",
     "@types/node": "^20.9.0",

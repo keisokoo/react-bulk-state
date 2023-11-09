@@ -42,7 +42,7 @@ function isFunction<T>(x: unknown): x is (value: T) => void {
   return x !== undefined && typeof x === 'function' && x instanceof Function
 }
 
-export const useBulkState = <T extends object>(initialValue: T) => {
+const useBulkState = <T extends object>(initialValue: T) => {
   const [value, set_value] = useState<T>(cloneDeep({ ...initialValue }))
   const [existValue, set_existValue] = useState<T>(
     cloneDeep({ ...initialValue })
@@ -70,6 +70,11 @@ export const useBulkState = <T extends object>(initialValue: T) => {
   }, [])
 
   const restoreByKeyNames = useCallback((keyNames: (keyof T)[]) => {
+    // set_value(produce((draft) => {
+    //   keyNames.forEach((keyName) => {
+    //     draft[keyName] = { ...initialValue }[keyName]
+    //   })
+    // }))
     set_value((prev) => {
       let cloned = cloneDeep(prev)
       const partialInitial = keyNames.reduce((prev, keyName) => {
@@ -141,3 +146,4 @@ export const useBulkState = <T extends object>(initialValue: T) => {
     restoreByKeyNames,
   } as BulkStateProps<T>
 }
+export default useBulkState
