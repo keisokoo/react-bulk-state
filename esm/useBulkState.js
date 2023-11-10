@@ -4,7 +4,7 @@ import { debounce, get, set } from 'lodash-es';
 import equal from 'fast-deep-equal';
 import { useCallback, useEffect, useRef, useState } from 'react';
 function propsToPreviousCallback(x) {
-    return x !== undefined && typeof x === 'function' && x instanceof Function && x.arguments.length === 2;
+    return x !== undefined && typeof x === 'function' && x instanceof Function;
 }
 var useBulkState = function (initialValue) {
     var initialValueRef = useRef(initialValue);
@@ -105,8 +105,8 @@ var useBulkState = function (initialValue) {
         savedValue: savedValue,
         isMatched: isMatched,
         saveCurrentValue: saveCurrentValue,
-        handleByPath: handleByPath,
         initValue: initValue,
+        handleByPath: handleByPath,
         handleValues: handleValues,
         handleByDraft: handleByDraft,
         handleByKeyName: handleByKeyName,

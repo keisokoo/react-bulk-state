@@ -21,7 +21,7 @@ type ValueOfDeepKey<T, K extends string> = K extends `${infer K1}.${infer K2}`
   : never
 
 function propsToPreviousCallback<T, K>(x: unknown): x is (a: T, b: K) => T {
-  return x !== undefined && typeof x === 'function' && x instanceof Function && x.arguments.length === 2
+  return x !== undefined && typeof x === 'function' && x instanceof Function
 }
 
 const useBulkState = <T extends object>(initialValue: T) => {
@@ -140,8 +140,8 @@ const useBulkState = <T extends object>(initialValue: T) => {
     savedValue,
     isMatched,
     saveCurrentValue,
-    handleByPath,
     initValue,
+    handleByPath,
     handleValues,
     handleByDraft,
     handleByKeyName,
