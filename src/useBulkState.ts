@@ -20,11 +20,8 @@ type ValueOfDeepKey<T, K extends string> = K extends `${infer K1}.${infer K2}`
   ? T[K]
   : never
 
-function isFunction<T>(x: unknown): x is (value: T) => void {
-  return x !== undefined && typeof x === 'function' && x instanceof Function
-}
-function isPickAndUpdate<T, K>(x: unknown): x is (a: T, b: K) => T {
-  return x !== undefined && typeof x === 'function' && x instanceof Function
+function propsToPreviousCallback<T, K>(x: unknown): x is (a: T, b: K) => T {
+  return x !== undefined && typeof x === 'function' && x instanceof Function && x.arguments.length === 2
 }
 
 const useBulkState = <T extends object>(initialValue: T) => {
@@ -93,7 +90,7 @@ const useBulkState = <T extends object>(initialValue: T) => {
     <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), callBack?: (changedDraft: Draft<T>) => Draft<T>) => {
       set_value((prev) => produce(prev, (draft) => {
         let cloned = { ...draft }
-        if (typeof value === 'function' && isPickAndUpdate(value)) {
+        if (typeof value === 'function' && propsToPreviousCallback(value)) {
           cloned = set(draft, target, value(get(draft, target), prev))
         } else {
           cloned = set(draft, target, value)
@@ -107,7 +104,7 @@ const useBulkState = <T extends object>(initialValue: T) => {
     []
   )
   const handleByDraft = useCallback(
-    async (callback: (draft: Draft<T>) => void) => {
+    (callback: (draft: Draft<T>) => void) => {
       set_value((prev) => produce(prev, (draft) => {
         callback(draft)
       }))
@@ -118,13 +115,13 @@ const useBulkState = <T extends object>(initialValue: T) => {
   const handleByKeyName = useCallback(
     <K extends keyof T>(
       target: K,
-      value: T[K] | ((value: T) => T[K]),
+      value: T[K] | ((current: T[K], prev: T) => T[K]),
       callBack?: (next: T) => T
     ) => {
       set_value((prev) => {
         let next = { ...prev }
-        if (typeof value === 'function' && isFunction(value)) {
-          next = { ...next, [target]: (value as (value: T) => T[K])(prev) }
+        if (typeof value === 'function' && propsToPreviousCallback(value)) {
+          next = { ...next, [target]: value(prev[target], prev) }
         } else {
           next = { ...next, [target]: value }
         }

@@ -1,46 +1,58 @@
-import { __assign, __awaiter, __generator } from "tslib";
-import { cloneDeep, get, isEqual, set } from 'lodash-es';
-import { useCallback, useMemo, useState } from 'react';
-function isFunction(x) {
-    return x !== undefined && typeof x === 'function' && x instanceof Function;
+import { __assign } from "tslib";
+import { produce } from 'immer';
+import { debounce, get, set } from 'lodash-es';
+import equal from 'fast-deep-equal';
+import { useCallback, useEffect, useRef, useState } from 'react';
+function propsToPreviousCallback(x) {
+    return x !== undefined && typeof x === 'function' && x instanceof Function && x.arguments.length === 2;
 }
 var useBulkState = function (initialValue) {
-    var _a = useState(cloneDeep(__assign({}, initialValue))), value = _a[0], set_value = _a[1];
-    var _b = useState(cloneDeep(__assign({}, initialValue))), existValue = _b[0], set_existValue = _b[1];
-    var bulkInit = useCallback(function (next) {
-        if (typeof next === 'function') {
-            set_value(function (prev) { return next(prev); });
-            set_existValue(function (prev) { return next(prev); });
+    var initialValueRef = useRef(initialValue);
+    var _a = useState(initialValueRef.current), value = _a[0], set_value = _a[1];
+    var _b = useState(initialValueRef.current), savedValue = _b[0], set_savedValue = _b[1];
+    var _c = useState(true), isMatched = _c[0], setIsMatched = _c[1];
+    useEffect(function () {
+        var debouncedCheck = debounce(function () {
+            setIsMatched(equal(value, savedValue));
+        }, 300);
+        debouncedCheck();
+        return function () { return debouncedCheck.cancel(); };
+    }, [value, savedValue]);
+    var initValue = useCallback(function (next) {
+        if (!next) {
+            set_value(initialValue);
+            set_savedValue(initialValue);
         }
         else {
-            set_value(next);
-            set_existValue(cloneDeep(next));
+            if (typeof next === 'function') {
+                set_value(function (prev) { return next(prev); });
+                set_savedValue(function (prev) { return next(prev); });
+            }
+            else {
+                set_value(next);
+                set_savedValue(next);
+            }
         }
     }, []);
-    var syncCurrentValue = useCallback(function () {
-        set_value(function (prev) {
-            set_existValue(cloneDeep(prev));
-            return prev;
+    var saveCurrentValue = useCallback(function () {
+        set_value(function (currentValue) {
+            var nextState = produce(currentValue, function () { });
+            set_savedValue(nextState);
+            return nextState;
         });
     }, []);
-    var restoreValues = useCallback(function () {
-        set_value(cloneDeep(initialValue));
-        set_existValue(cloneDeep(initialValue));
+    var restoreToSaved = useCallback(function () {
+        set_value(savedValue);
+    }, [savedValue]);
+    var restoreToInit = useCallback(function () {
+        set_value(produce(initialValueRef.current, function () { }));
     }, []);
     var restoreByKeyNames = useCallback(function (keyNames) {
-        // set_value(produce((draft) => {
-        //   keyNames.forEach((keyName) => {
-        //     draft[keyName] = { ...initialValue }[keyName]
-        //   })
-        // }))
-        set_value(function (prev) {
-            var cloned = cloneDeep(prev);
-            var partialInitial = keyNames.reduce(function (prev, keyName) {
-                prev[keyName] = get(cloneDeep(__assign({}, initialValue)), keyName);
-                return prev;
-            }, {});
-            return __assign(__assign({}, cloned), partialInitial);
-        });
+        set_value(function (currentValue) { return produce(currentValue, function (draft) {
+            keyNames.forEach(function (keyName) {
+                draft[keyName] = initialValueRef.current[keyName];
+            });
+        }); });
     }, []);
     var handleValues = useCallback(function (next) {
         if (typeof next === 'function') {
@@ -50,47 +62,56 @@ var useBulkState = function (initialValue) {
             set_value(next);
         }
     }, []);
-    var pickAndUpdate = useCallback(function (target, value) {
-        set_value(function (prev) { return cloneDeep(__assign({}, set(prev, target, value))); });
+    var handleByPath = useCallback(function (target, value, callBack) {
+        set_value(function (prev) { return produce(prev, function (draft) {
+            var cloned = __assign({}, draft);
+            if (typeof value === 'function' && propsToPreviousCallback(value)) {
+                cloned = set(draft, target, value(get(draft, target), prev));
+            }
+            else {
+                cloned = set(draft, target, value);
+            }
+            if (callBack) {
+                callBack(cloned);
+            }
+            draft = cloned;
+        }); });
     }, []);
-    var handleByKeyName = useCallback(function (target, value, callBack) { return __awaiter(void 0, void 0, void 0, function () {
-        return __generator(this, function (_a) {
-            set_value(function (prev) {
-                var _a, _b;
-                var next = __assign({}, prev);
-                if (typeof value === 'function' && isFunction(value)) {
-                    next = __assign(__assign({}, next), (_a = {}, _a[target] = value(prev), _a));
-                }
-                else {
-                    next = __assign(__assign({}, next), (_b = {}, _b[target] = value, _b));
-                }
-                if (callBack) {
-                    return callBack(next);
-                }
-                else {
-                    return next;
-                }
-            });
-            return [2 /*return*/];
+    var handleByDraft = useCallback(function (callback) {
+        set_value(function (prev) { return produce(prev, function (draft) {
+            callback(draft);
+        }); });
+    }, []);
+    var handleByKeyName = useCallback(function (target, value, callBack) {
+        set_value(function (prev) {
+            var _a, _b;
+            var next = __assign({}, prev);
+            if (typeof value === 'function' && propsToPreviousCallback(value)) {
+                next = __assign(__assign({}, next), (_a = {}, _a[target] = value(prev[target], prev), _a));
+            }
+            else {
+                next = __assign(__assign({}, next), (_b = {}, _b[target] = value, _b));
+            }
+            if (callBack) {
+                return callBack(next);
+            }
+            else {
+                return next;
+            }
         });
-    }); }, []);
-    var returnToOriginal = useCallback(function () {
-        set_value(cloneDeep(__assign({}, existValue)));
-    }, [existValue]);
-    var isMatched = useMemo(function () {
-        return isEqual(existValue, value);
-    }, [value, existValue]);
+    }, []);
     return {
         value: value,
-        existValue: existValue,
+        savedValue: savedValue,
         isMatched: isMatched,
-        syncCurrentValue: syncCurrentValue,
-        pickAndUpdate: pickAndUpdate,
-        bulkInit: bulkInit,
+        saveCurrentValue: saveCurrentValue,
+        handleByPath: handleByPath,
+        initValue: initValue,
         handleValues: handleValues,
+        handleByDraft: handleByDraft,
         handleByKeyName: handleByKeyName,
-        returnToOriginal: returnToOriginal,
-        restoreValues: restoreValues,
+        restoreToInit: restoreToInit,
+        restoreToSaved: restoreToSaved,
         restoreByKeyNames: restoreByKeyNames,
     };
 };
