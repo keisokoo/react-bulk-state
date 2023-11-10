@@ -24,7 +24,7 @@
     "lib",
     "esm",
     "tests",
-    "stories",
+    "src/stories",
     "jest.config.ts",
     "jest.config.*.ts"
   ]
