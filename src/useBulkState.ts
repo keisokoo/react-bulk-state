@@ -119,7 +119,7 @@ const useBulkState = <T extends object>(initialValue: T) => {
       callBack?: (next: T) => T
     ) => {
       set_value((prev) => {
-        let next = { ...prev }
+        let next = produce(prev, () => { })
         if (typeof value === 'function' && propsToPreviousCallback(value)) {
           next = { ...next, [target]: value(prev[target], prev) }
         } else {
