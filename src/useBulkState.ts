@@ -1,4 +1,4 @@
-import { Draft, produce } from 'immer'
+import { produce } from 'immer'
 import { debounce, get, set } from 'lodash-es'
 import equal from 'fast-deep-equal'
 import { useCallback, useEffect, useRef, useState } from 'react'
@@ -87,25 +87,14 @@ const useBulkState = <T extends object>(initialValue: T) => {
   }, [])
 
   const setByPath = useCallback(
-    <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), callBack?: (changedDraft: Draft<T>) => Draft<T>) => {
+    <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>)) => {
       set_value((prev) => produce(prev, (draft) => {
-        let cloned = { ...draft }
         if (typeof value === 'function' && propsToPreviousCallback(value)) {
-          cloned = set(draft, target, value(get(draft, target), prev))
+          set(draft, target, value(get(draft, target), prev))
         } else {
-          cloned = set(draft, target, value)
+          set(draft, target, value)
         }
-        if (callBack) {
-          callBack(cloned)
-        }
-        draft = cloned
       }))
-    },
-    []
-  )
-  const setByImmer = useCallback(
-    (recipe: (draft: Draft<T>) => void) => {
-      set_value((prev) => produce(prev, recipe))
     },
     []
   )
@@ -119,7 +108,6 @@ const useBulkState = <T extends object>(initialValue: T) => {
     initValue,
     setBulkState,
     setByPath,
-    setByImmer,
     restoreToInit,
     restoreToSaved,
     restoreByKeyNames,

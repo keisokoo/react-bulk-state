@@ -28,7 +28,6 @@ export const Demo = () => {
     value,
     isMatched,
     setByPath,
-    setByImmer,
     initValue,
     saveCurrentValue,
     restoreToSaved,
@@ -62,23 +61,16 @@ export const Demo = () => {
         <input
           value={value.qux.quux}
           onChange={(e) => {
-            setByImmer((draft) => {
-              draft.qux.quux = e.target.value
-            })
+            setByPath('qux.quux', e.target.value)
           }}
         />
       </div>
       <div>
         <button
           onClick={() => {
-            setByPath(
-              'baz',
-              (prev) => !prev,
-              (draft) => {
-                draft.qux.c.e++
-                return draft
-              }
-            )
+            setByPath('baz', (prev) => {
+              return !prev
+            })
           }}
         >
           baz update and count++
