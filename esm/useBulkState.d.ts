@@ -10,10 +10,9 @@ declare const useBulkState: <T extends object>(initialValue: T) => {
     isMatched: boolean;
     saveCurrentValue: () => void;
     initValue: (next?: T | ((prev: T) => T) | undefined) => void;
-    handleByPath: <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), callBack?: ((changedDraft: Draft<T>) => Draft<T>) | undefined) => void;
-    handleValues: (next: T | ((prev: T) => T)) => void;
-    handleByDraft: (callback: (draft: Draft<T>) => void) => void;
-    handleByKeyName: <K_1 extends keyof T>(target: K_1, value: T[K_1] | ((current: T[K_1], prev: T) => T[K_1]), callBack?: ((next: T) => T) | undefined) => void;
+    setBulkState: (next: T | ((prev: T) => T)) => void;
+    setByPath: <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), callBack?: ((changedDraft: Draft<T>) => Draft<T>) | undefined) => void;
+    setByImmer: (recipe: (draft: Draft<T>) => void) => void;
     restoreToInit: () => void;
     restoreToSaved: () => void;
     restoreByKeyNames: (keyNames: (keyof T)[]) => void;

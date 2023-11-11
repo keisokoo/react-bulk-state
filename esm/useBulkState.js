@@ -54,7 +54,7 @@ var useBulkState = function (initialValue) {
             });
         }); });
     }, []);
-    var handleValues = useCallback(function (next) {
+    var setBulkState = useCallback(function (next) {
         if (typeof next === 'function') {
             set_value(function (prev) { return next(prev); });
         }
@@ -62,7 +62,7 @@ var useBulkState = function (initialValue) {
             set_value(next);
         }
     }, []);
-    var handleByPath = useCallback(function (target, value, callBack) {
+    var setByPath = useCallback(function (target, value, callBack) {
         set_value(function (prev) { return produce(prev, function (draft) {
             var cloned = __assign({}, draft);
             if (typeof value === 'function' && propsToPreviousCallback(value)) {
@@ -77,28 +77,8 @@ var useBulkState = function (initialValue) {
             draft = cloned;
         }); });
     }, []);
-    var handleByDraft = useCallback(function (callback) {
-        set_value(function (prev) { return produce(prev, function (draft) {
-            callback(draft);
-        }); });
-    }, []);
-    var handleByKeyName = useCallback(function (target, value, callBack) {
-        set_value(function (prev) {
-            var _a, _b;
-            var next = __assign({}, prev);
-            if (typeof value === 'function' && propsToPreviousCallback(value)) {
-                next = __assign(__assign({}, next), (_a = {}, _a[target] = value(prev[target], prev), _a));
-            }
-            else {
-                next = __assign(__assign({}, next), (_b = {}, _b[target] = value, _b));
-            }
-            if (callBack) {
-                return callBack(next);
-            }
-            else {
-                return next;
-            }
-        });
+    var setByImmer = useCallback(function (recipe) {
+        set_value(function (prev) { return produce(prev, recipe); });
     }, []);
     return {
         value: value,
@@ -106,10 +86,9 @@ var useBulkState = function (initialValue) {
         isMatched: isMatched,
         saveCurrentValue: saveCurrentValue,
         initValue: initValue,
-        handleByPath: handleByPath,
-        handleValues: handleValues,
-        handleByDraft: handleByDraft,
-        handleByKeyName: handleByKeyName,
+        setBulkState: setBulkState,
+        setByPath: setByPath,
+        setByImmer: setByImmer,
         restoreToInit: restoreToInit,
         restoreToSaved: restoreToSaved,
         restoreByKeyNames: restoreByKeyNames,
