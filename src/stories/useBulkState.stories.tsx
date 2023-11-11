@@ -27,9 +27,8 @@ export const Demo = () => {
   const {
     value,
     isMatched,
-    handleByPath,
-    handleByDraft,
-    handleByKeyName,
+    setByPath,
+    setByImmer,
     initValue,
     saveCurrentValue,
     restoreToSaved,
@@ -63,7 +62,7 @@ export const Demo = () => {
         <input
           value={value.qux.quux}
           onChange={(e) => {
-            handleByDraft((draft) => {
+            setByImmer((draft) => {
               draft.qux.quux = e.target.value
             })
           }}
@@ -72,7 +71,7 @@ export const Demo = () => {
       <div>
         <button
           onClick={() => {
-            handleByPath(
+            setByPath(
               'baz',
               (prev) => !prev,
               (draft) => {
@@ -89,7 +88,7 @@ export const Demo = () => {
         <input
           value={value.foo}
           onChange={(e) => {
-            handleByKeyName('foo', e.target.value)
+            setByPath('foo', e.target.value)
           }}
         />
       </div>
@@ -97,7 +96,7 @@ export const Demo = () => {
         <input
           value={value.qux.c.d}
           onChange={(e) => {
-            handleByPath('qux.c.d', e.target.value)
+            setByPath('qux.c.d', e.target.value)
           }}
         />
       </div>

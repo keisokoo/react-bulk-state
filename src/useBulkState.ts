@@ -78,7 +78,7 @@ const useBulkState = <T extends object>(initialValue: T) => {
   }, [])
 
 
-  const handleValues = useCallback((next: T | ((prev: T) => T)) => {
+  const setBulkState = useCallback((next: T | ((prev: T) => T)) => {
     if (typeof next === 'function') {
       set_value((prev) => next(prev))
     } else {
@@ -86,7 +86,7 @@ const useBulkState = <T extends object>(initialValue: T) => {
     }
   }, [])
 
-  const handleByPath = useCallback(
+  const setByPath = useCallback(
     <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), callBack?: (changedDraft: Draft<T>) => Draft<T>) => {
       set_value((prev) => produce(prev, (draft) => {
         let cloned = { ...draft }
@@ -103,37 +103,13 @@ const useBulkState = <T extends object>(initialValue: T) => {
     },
     []
   )
-  const handleByDraft = useCallback(
-    (callback: (draft: Draft<T>) => void) => {
-      set_value((prev) => produce(prev, (draft) => {
-        callback(draft)
-      }))
+  const setByImmer = useCallback(
+    (recipe: (draft: Draft<T>) => void) => {
+      set_value((prev) => produce(prev, recipe))
     },
     []
   )
 
-  const handleByKeyName = useCallback(
-    <K extends keyof T>(
-      target: K,
-      value: T[K] | ((current: T[K], prev: T) => T[K]),
-      callBack?: (next: T) => T
-    ) => {
-      set_value((prev) => {
-        let next = produce(prev, () => { })
-        if (typeof value === 'function' && propsToPreviousCallback(value)) {
-          next = { ...next, [target]: value(prev[target], prev) }
-        } else {
-          next = { ...next, [target]: value }
-        }
-        if (callBack) {
-          return callBack(next)
-        } else {
-          return next
-        }
-      })
-    },
-    []
-  )
 
   return {
     value,
@@ -141,10 +117,9 @@ const useBulkState = <T extends object>(initialValue: T) => {
     isMatched,
     saveCurrentValue,
     initValue,
-    handleByPath,
-    handleValues,
-    handleByDraft,
-    handleByKeyName,
+    setBulkState,
+    setByPath,
+    setByImmer,
     restoreToInit,
     restoreToSaved,
     restoreByKeyNames,
