@@ -87,14 +87,26 @@ const useBulkState = <T extends object>(initialValue: T) => {
   }, [])
 
   const setByPath = useCallback(
-    <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>)) => {
-      set_value((prev) => produce(prev, (draft) => {
-        if (typeof value === 'function' && propsToPreviousCallback(value)) {
-          set(draft, target, value(get(draft, target), prev))
-        } else {
-          set(draft, target, value)
+    <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), recipe?: (changedValue: T) => T) => {
+      set_value((prev) => {
+        let changedValue = produce(prev, (draft) => {
+          if (typeof value === 'function' && propsToPreviousCallback(value)) {
+            set(draft, target, value(get(draft, target), prev))
+          } else {
+            set(draft, target, value)
+          }
+        })
+        if (recipe) {
+          changedValue = produce(changedValue, recipe)
         }
-      }))
+        return changedValue
+      })
+    },
+    []
+  )
+  const setByImmer = useCallback(
+    (recipe: (draft: T) => void) => {
+      set_value((prev) => produce(prev, recipe))
     },
     []
   )
@@ -108,6 +120,7 @@ const useBulkState = <T extends object>(initialValue: T) => {
     initValue,
     setBulkState,
     setByPath,
+    setByImmer,
     restoreToInit,
     restoreToSaved,
     restoreByKeyNames,

@@ -68,9 +68,14 @@ export const Demo = () => {
       <div>
         <button
           onClick={() => {
-            setByPath('baz', (prev) => {
-              return !prev
-            })
+            setByPath(
+              'baz',
+              (prev) => !prev,
+              (draft) => {
+                draft.qux.c.e++
+                return draft
+              }
+            )
           }}
         >
           baz update and count++

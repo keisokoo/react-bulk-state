@@ -61,15 +61,24 @@ var useBulkState = function (initialValue) {
             set_value(next);
         }
     }, []);
-    var setByPath = useCallback(function (target, value) {
-        set_value(function (prev) { return produce(prev, function (draft) {
-            if (typeof value === 'function' && propsToPreviousCallback(value)) {
-                set(draft, target, value(get(draft, target), prev));
+    var setByPath = useCallback(function (target, value, recipe) {
+        set_value(function (prev) {
+            var changedValue = produce(prev, function (draft) {
+                if (typeof value === 'function' && propsToPreviousCallback(value)) {
+                    set(draft, target, value(get(draft, target), prev));
+                }
+                else {
+                    set(draft, target, value);
+                }
+            });
+            if (recipe) {
+                changedValue = produce(changedValue, recipe);
             }
-            else {
-                set(draft, target, value);
-            }
-        }); });
+            return changedValue;
+        });
+    }, []);
+    var setByImmer = useCallback(function (recipe) {
+        set_value(function (prev) { return produce(prev, recipe); });
     }, []);
     return {
         value: value,
@@ -79,6 +88,7 @@ var useBulkState = function (initialValue) {
         initValue: initValue,
         setBulkState: setBulkState,
         setByPath: setByPath,
+        setByImmer: setByImmer,
         restoreToInit: restoreToInit,
         restoreToSaved: restoreToSaved,
         restoreByKeyNames: restoreByKeyNames,
