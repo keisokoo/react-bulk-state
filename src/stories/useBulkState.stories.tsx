@@ -29,10 +29,10 @@ const DemoChild = ({ setByPath }: DemoChildProps) => {
 export const Demo = () => {
   const data = useBulkState(initialState)
   const [value, methods] = data
-  const { setByPath, initValue, saveCurrentValue, restoreToSaved, isMatched } =
+  const { setByPath, init, saveCurrentValue, restoreToSaved, isMatched } =
     methods
   React.useEffect(() => {
-    initValue({
+    init({
       foo: 'bar',
       bar: 0,
       baz: false,
@@ -51,6 +51,12 @@ export const Demo = () => {
   return (
     <div>
       <div>foo: {value.foo}</div>
+      <div>
+        bar: {value.bar}
+        <button onClick={() => setByPath('bar', (prev) => prev++)}>
+          increment
+        </button>
+      </div>
       <div>qux.quux: {value.qux.quux}</div>
       <div>qux.c.d: {value.qux.c.d}</div>
       <div>isMatched: {isMatched ? 'true' : 'false'}</div>
@@ -72,7 +78,6 @@ export const Demo = () => {
               (prev) => !prev,
               (draft) => {
                 draft.qux.c.e++
-                return draft
               }
             )
           }}
@@ -97,7 +102,7 @@ export const Demo = () => {
         />
       </div>
       <div>
-        <button onClick={() => initValue()}>initValue</button>
+        <button onClick={() => init()}>init</button>
       </div>
       <div>
         <button onClick={saveCurrentValue}>saveCurrentValue</button>

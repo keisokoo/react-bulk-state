@@ -9,71 +9,71 @@ function propsToPreviousCallback(x) {
  * useBulkState is a react hook that can be used in the same way as useState.
  * But it has some additional features.
  * @example
- * const [bulkState, { setByPath }] = useBulkState({ foo: 'bar' })
- * return <div onClick={() => setByPath('foo', 'baz')}>{bulkState.foo}</div>
+ * const [state, { setByPath }] = useBulkState({ foo: 'bar' })
+ * return <div onClick={() => setByPath('foo', 'baz')}>{state.foo}</div>
  * @example
- * const [bulkState, { setByPath }] = useBulkState({ foo: { bar: { baz: 'hello' }} })
- * return <div onClick={() => setByPath('foo.bar.baz', (current) => current + ' world!')}>{bulkState.foo.bar.baz}</div>
+ * const [state, { setByPath }] = useBulkState({ foo: { bar: { baz: 'hello' }} })
+ * return <div onClick={() => setByPath('foo.bar.baz', (current) => current + ' world!')}>{state.foo.bar.baz}</div>
  *
  */
 var useBulkState = function (initialValue) {
     var initialValueRef = useRef(initialValue);
-    var _a = useState(initialValueRef.current), bulkState = _a[0], set_bulkState = _a[1];
-    var _b = useState(initialValueRef.current), savedValue = _b[0], set_savedValue = _b[1];
+    var _a = useState(initialValueRef.current), state = _a[0], set_state = _a[1];
+    var _b = useState(initialValueRef.current), savedState = _b[0], set_savedState = _b[1];
     var _c = useState(true), isMatched = _c[0], setIsMatched = _c[1];
     useEffect(function () {
         var debouncedCheck = debounce(function () {
-            setIsMatched(equal(bulkState, savedValue));
+            setIsMatched(equal(state, savedState));
         }, 300);
         debouncedCheck();
         return function () { return debouncedCheck.cancel(); };
-    }, [bulkState, savedValue]);
-    var initValue = useCallback(function (next) {
+    }, [state, savedState]);
+    var init = useCallback(function (next) {
         if (!next) {
-            set_bulkState(initialValue);
-            set_savedValue(initialValue);
+            set_state(initialValue);
+            set_savedState(initialValue);
         }
         else {
             if (typeof next === 'function') {
-                set_bulkState(function (prev) { return next(prev); });
-                set_savedValue(function (prev) { return next(prev); });
+                set_state(function (prev) { return next(prev); });
+                set_savedState(function (prev) { return next(prev); });
             }
             else {
-                set_bulkState(next);
-                set_savedValue(next);
+                set_state(next);
+                set_savedState(next);
             }
         }
     }, []);
     var saveCurrentValue = useCallback(function () {
-        set_bulkState(function (currentValue) {
+        set_state(function (currentValue) {
             var savingValue = produce(currentValue, function () { });
-            set_savedValue(savingValue);
+            set_savedState(savingValue);
             return currentValue;
         });
     }, []);
     var restoreToSaved = useCallback(function () {
-        set_bulkState(savedValue);
-    }, [savedValue]);
+        set_state(savedState);
+    }, [savedState]);
     var restoreToInit = useCallback(function () {
-        set_bulkState(produce(initialValueRef.current, function () { }));
+        set_state(produce(initialValueRef.current, function () { }));
     }, []);
     var restoreByKeyNames = useCallback(function (keyNames) {
-        set_bulkState(function (currentValue) { return produce(currentValue, function (draft) {
+        set_state(function (currentValue) { return produce(currentValue, function (draft) {
             keyNames.forEach(function (keyName) {
                 draft[keyName] = initialValueRef.current[keyName];
             });
         }); });
     }, []);
-    var setBulkState = useCallback(function (next) {
+    var setState = useCallback(function (next) {
         if (typeof next === 'function') {
-            set_bulkState(function (prev) { return next(prev); });
+            set_state(function (prev) { return next(prev); });
         }
         else {
-            set_bulkState(next);
+            set_state(next);
         }
     }, []);
     var setByPath = useCallback(function (target, data, recipe) {
-        set_bulkState(function (prev) {
+        set_state(function (prev) {
             var changedValue = produce(prev, function (draft) {
                 if (typeof data === 'function' && propsToPreviousCallback(data)) {
                     set(draft, target, data(get(draft, target), prev));
@@ -89,14 +89,14 @@ var useBulkState = function (initialValue) {
         });
     }, []);
     var setByImmer = useCallback(function (recipe) {
-        set_bulkState(function (prev) { return produce(prev, recipe); });
+        set_state(function (prev) { return produce(prev, recipe); });
     }, []);
-    return [bulkState, {
-            savedValue: savedValue,
+    return [state, {
+            savedState: savedState,
             isMatched: isMatched,
             saveCurrentValue: saveCurrentValue,
-            initValue: initValue,
-            setBulkState: setBulkState,
+            init: init,
+            setState: setState,
             setByPath: setByPath,
             setByImmer: setByImmer,
             restoreToInit: restoreToInit,
