@@ -10,7 +10,7 @@ declare const useBulkState: <T extends object>(initialValue: T) => {
     saveCurrentValue: () => void;
     initValue: (next?: T | ((prev: T) => T) | undefined) => void;
     setBulkState: (next: T | ((prev: T) => T)) => void;
-    setByPath: <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), recipe?: ((changedValue: T) => T) | undefined) => void;
+    setByPath: <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), recipe?: ((changedValue: T) => void) | undefined) => void;
     setByImmer: (recipe: (draft: T) => void) => void;
     restoreToInit: () => void;
     restoreToSaved: () => void;

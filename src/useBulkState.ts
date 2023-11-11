@@ -87,7 +87,7 @@ const useBulkState = <T extends object>(initialValue: T) => {
   }, [])
 
   const setByPath = useCallback(
-    <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), recipe?: (changedValue: T) => T) => {
+    <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), recipe?: (changedValue: T) => void) => {
       set_value((prev) => {
         let changedValue = produce(prev, (draft) => {
           if (typeof value === 'function' && propsToPreviousCallback(value)) {
