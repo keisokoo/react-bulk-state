@@ -1,4 +1,3 @@
-import { Draft } from 'immer';
 export type BulkStateReturnType<T extends object> = ReturnType<typeof useBulkState<T>>;
 type DeepKeyOf<T> = T extends object ? {
     [K in Extract<keyof T, string>]: K | `${K}.${DeepKeyOf<T[K]>}`;
@@ -11,8 +10,7 @@ declare const useBulkState: <T extends object>(initialValue: T) => {
     saveCurrentValue: () => void;
     initValue: (next?: T | ((prev: T) => T) | undefined) => void;
     setBulkState: (next: T | ((prev: T) => T)) => void;
-    setByPath: <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), callBack?: ((changedDraft: Draft<T>) => Draft<T>) | undefined) => void;
-    setByImmer: (recipe: (draft: Draft<T>) => void) => void;
+    setByPath: <K extends DeepKeyOf<T>>(target: K, value: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>)) => void;
     restoreToInit: () => void;
     restoreToSaved: () => void;
     restoreByKeyNames: (keyNames: (keyof T)[]) => void;

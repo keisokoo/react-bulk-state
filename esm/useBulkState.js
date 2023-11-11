@@ -1,4 +1,3 @@
-import { __assign } from "tslib";
 import { produce } from 'immer';
 import { debounce, get, set } from 'lodash-es';
 import equal from 'fast-deep-equal';
@@ -62,23 +61,15 @@ var useBulkState = function (initialValue) {
             set_value(next);
         }
     }, []);
-    var setByPath = useCallback(function (target, value, callBack) {
+    var setByPath = useCallback(function (target, value) {
         set_value(function (prev) { return produce(prev, function (draft) {
-            var cloned = __assign({}, draft);
             if (typeof value === 'function' && propsToPreviousCallback(value)) {
-                cloned = set(draft, target, value(get(draft, target), prev));
+                set(draft, target, value(get(draft, target), prev));
             }
             else {
-                cloned = set(draft, target, value);
+                set(draft, target, value);
             }
-            if (callBack) {
-                callBack(cloned);
-            }
-            draft = cloned;
         }); });
-    }, []);
-    var setByImmer = useCallback(function (recipe) {
-        set_value(function (prev) { return produce(prev, recipe); });
     }, []);
     return {
         value: value,
@@ -88,7 +79,6 @@ var useBulkState = function (initialValue) {
         initValue: initValue,
         setBulkState: setBulkState,
         setByPath: setByPath,
-        setByImmer: setByImmer,
         restoreToInit: restoreToInit,
         restoreToSaved: restoreToSaved,
         restoreByKeyNames: restoreByKeyNames,
