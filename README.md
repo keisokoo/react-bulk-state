@@ -1,8 +1,55 @@
 # react-bulk-state
 
-react-bulk-state는 React 애플리케이션에서 상태(state)를 일괄적으로 업데이트할 수 있는 유틸리티입니다.
+`react-bulk-state` is a utility for batch updating the state in a React application.
 
-## 설치
+It uses `immer` and the `set` function from `lodash-es` for convenient state updates.
 
-npm을 사용하여 패키지를 설치할 수 있습니다.
+Additional features include saving and restoring previous states, as well as checking whether the state has changed.
+
+## install
+
+```bash
+npm install react-bulk-state
+
+# or
+
+yarn add react-bulk-state
+```
+
+## usage
+
+```tsx
+import { useBulkState } from 'react-bulk-state';
+
+export function Component(){
+  const [state, {
+    setByPath
+  }] = useBulkState({ count: 0, text: '', foo: { bar: { baz: 'hello' } } });
+  const { count, text, foo } = state;
+  return (
+    <div>
+      <p>count: {count}</p>
+      <button
+        onClick={() =>
+          setByPath('count', (prev)=> prev++)
+        }
+      >
+        increment
+      </button>
+      <input
+        value={text}
+        onChange={(e) => setByPath('text', e.target.value)}
+      />
+      <button
+        onClick={() =>
+          setByPath('foo.bar.baz', (current) => current + ' world!')
+        }
+      >
+        {foo.bar.baz}
+      </button>
+    </div>
+  );
+}
+```
+
 
