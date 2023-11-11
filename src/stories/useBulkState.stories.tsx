@@ -16,18 +16,21 @@ const initialState = {
     },
   },
 }
-interface DemoChildProps extends BulkStateReturnType<typeof initialState> {}
+type BulkProperties = BulkStateReturnType<typeof initialState>[1]
+interface DemoChildProps extends BulkProperties {}
 
-const DemoChild = (props: DemoChildProps) => {
-  const [bulkState] = props
-  return <div>{bulkState.foo}</div>
+const DemoChild = ({ setByPath }: DemoChildProps) => {
+  return (
+    <div>
+      <button onClick={() => setByPath('foo', 'gogo')}>run from child</button>
+    </div>
+  )
 }
 export const Demo = () => {
   const data = useBulkState(initialState)
-  const [
-    value,
-    { isMatched, setByPath, initValue, saveCurrentValue, restoreToSaved },
-  ] = data
+  const [value, methods] = data
+  const { setByPath, initValue, saveCurrentValue, restoreToSaved, isMatched } =
+    methods
   React.useEffect(() => {
     initValue({
       foo: 'bar',
@@ -102,7 +105,7 @@ export const Demo = () => {
       <div>
         <button onClick={restoreToSaved}>restoreToSaved</button>
       </div>
-      <DemoChild {...data} />
+      <DemoChild {...methods} />
     </div>
   )
 }

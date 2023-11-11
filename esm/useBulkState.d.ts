@@ -3,7 +3,7 @@
  * you can use like this:
  * `type Props = { foo: BulkStateReturnType<typeof yourInitialValue> }`
  * `const YourComponent = ({foo}: Props) => {
- *  const { bulkState, setByPath } = foo;
+ *  const [bulkState, { setByPath }] = foo;
  *  return <div onClick={() => setByPath('bar', 'baz')}>{bulkState.bar}</div>}`
  */
 export type BulkStateReturnType<T extends object> = ReturnType<typeof useBulkState<T>>;
@@ -20,10 +20,10 @@ type ValueOfDeepKey<T, K extends string> = K extends `${infer K1}.${infer K2}` ?
  * useBulkState is a react hook that can be used in the same way as useState.
  * But it has some additional features.
  * @example
- * const { bulkState, setByPath } = useBulkState({ foo: 'bar' })
+ * const [bulkState, { setByPath }] = useBulkState({ foo: 'bar' })
  * return <div onClick={() => setByPath('foo', 'baz')}>{bulkState.foo}</div>
  * @example
- * const { bulkState, setByPath } = useBulkState({ foo: { bar: { baz: 'hello' }} })
+ * const [bulkState, { setByPath }] = useBulkState({ foo: { bar: { baz: 'hello' }} })
  * return <div onClick={() => setByPath('foo.bar.baz', (current) => current + ' world!')}>{bulkState.foo.bar.baz}</div>
  *
  */
