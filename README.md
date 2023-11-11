@@ -74,7 +74,7 @@ const [state, {
   - **`saveCurrentValue`**_`: void`_&mdash; Save the current state.
   - **`init(next?: T | ((prev: T) => T) | undefined)`**_`: void`_&mdash; Re-Initialize the `state` and `savedState`.
   - **`setState(next: T | ((prev: T) => T))`**_`: void`_&mdash; Update the state.
-  - **`setByPath(target: PathString, data: Value | (currentValue: Value) => Value, afterChange?: (Draft<T>) => void)`**_`: void`_&mdash; 
+  - **`setByPath(target: PathString, (current: Value | (current: Value) => Value), afterChange?: (Draft<T>) => void)`**_`: void`_&mdash; 
     Update the state by path.
     ```tsx
     // ...
