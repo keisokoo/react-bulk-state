@@ -6,7 +6,7 @@ It uses `immer` and the `set` function from `lodash-es` for convenient state upd
 
 Additional features include saving and restoring previous states, as well as checking whether the state has changed.
 
-## install
+## Install
 
 ```bash
 npm install react-bulk-state
@@ -16,7 +16,7 @@ npm install react-bulk-state
 yarn add react-bulk-state
 ```
 
-## usage
+## Usage
 
 ```tsx
 import { useBulkState } from 'react-bulk-state';
@@ -74,9 +74,14 @@ const [state, {
   - **`saveCurrentValue`**_`: void`_&mdash; Save the current state.
   - **`init(next?: T | ((prev: T) => T) | undefined)`**_`: void`_&mdash; Re-Initialize the `state` and `savedState`.
   - **`setState(next: T | ((prev: T) => T))`**_`: void`_&mdash; Update the state.
-  - **`setByPath(target: string, data: T[target] | (currentValue: T[target], state: T), afterChange?: (Draft<T>) => void)`**_`: void`_&mdash; 
+  - **`setByPath(target: PathString, data: Value | (currentValue: Value) => Value, afterChange?: (Draft<T>) => void)`**_`: void`_&mdash; 
     Update the state by path.
     ```tsx
+    // ...
+    const [state, {
+      setByPath
+    }] = useBulkState({ count: 0, text: '', foo: { bar: { baz: 'hello' } } });
+    // ...
     setByPath('foo.bar.baz', (current) => current + ' world!', (draft) => {
       // draft.foo.bar.baz === 'hello world!'
       // then do something with draft(like using immer)
