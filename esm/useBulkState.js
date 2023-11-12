@@ -9,11 +9,11 @@ function propsToPreviousCallback(x) {
  * useBulkState is a react hook that can be used in the same way as useState.
  * But it has some additional features.
  * @example
- * const [state, { setByPath }] = useBulkState({ foo: 'bar' })
- * return <div onClick={() => setByPath('foo', 'baz')}>{state.foo}</div>
+ * const [state, { setState }] = useBulkState({ foo: 'bar' })
+ * return <div onClick={() => setState('foo', 'baz')}>{state.foo}</div>
  * @example
- * const [state, { setByPath }] = useBulkState({ foo: { bar: { baz: 'hello' }} })
- * return <div onClick={() => setByPath('foo.bar.baz', (current) => current + ' world!')}>{state.foo.bar.baz}</div>
+ * const [state, { setState }] = useBulkState({ foo: { bar: { baz: 'hello' }} })
+ * return <div onClick={() => setState('foo.bar.baz', (current) => current + ' world!')}>{state.foo.bar.baz}</div>
  *
  */
 var useBulkState = function (initialValue) {
@@ -64,7 +64,7 @@ var useBulkState = function (initialValue) {
             });
         }); });
     }, []);
-    var setState = useCallback(function (next) {
+    var setBulkState = useCallback(function (next) {
         if (typeof next === 'function') {
             set_state(function (prev) { return next(prev); });
         }
@@ -72,7 +72,7 @@ var useBulkState = function (initialValue) {
             set_state(next);
         }
     }, []);
-    var setByPath = useCallback(function (target, data, recipe) {
+    var setState = useCallback(function (target, data, recipe) {
         set_state(function (prev) {
             var changedValue = produce(prev, function (draft) {
                 if (typeof data === 'function' && propsToPreviousCallback(data)) {
@@ -91,17 +91,18 @@ var useBulkState = function (initialValue) {
     var setByImmer = useCallback(function (recipe) {
         set_state(function (prev) { return produce(prev, recipe); });
     }, []);
-    return [state, {
-            savedState: savedState,
-            isMatched: isMatched,
-            saveCurrentValue: saveCurrentValue,
-            init: init,
-            setState: setState,
-            setByPath: setByPath,
-            setByImmer: setByImmer,
-            restoreToInit: restoreToInit,
-            restoreToSaved: restoreToSaved,
-            restoreByKeyNames: restoreByKeyNames,
-        }];
+    return {
+        state: state,
+        setState: setState,
+        savedState: savedState,
+        isMatched: isMatched,
+        saveCurrentValue: saveCurrentValue,
+        init: init,
+        setBulkState: setBulkState,
+        setByImmer: setByImmer,
+        restoreToInit: restoreToInit,
+        restoreToSaved: restoreToSaved,
+        restoreByKeyNames: restoreByKeyNames,
+    };
 };
 export default useBulkState;

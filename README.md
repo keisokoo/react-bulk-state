@@ -22,27 +22,27 @@ yarn add react-bulk-state
 import { useBulkState } from 'react-bulk-state';
 
 export function Component(){
-  const [state, {
-    setByPath
-  }] = useBulkState({ count: 0, text: '', foo: { bar: { baz: 'hello' } } });
+  const { state,
+    setState
+  } = useBulkState({ count: 0, text: '', foo: { bar: { baz: 'hello' } } });
   const { count, text, foo } = state;
   return (
     <div>
       <p>count: {count}</p>
       <button
         onClick={() =>
-          setByPath('count', (prev)=> prev+1)
+          setState('count', (prev)=> prev+1)
         }
       >
         increment
       </button>
       <input
         value={text}
-        onChange={(e) => setByPath('text', e.target.value)}
+        onChange={(e) => setState('text', e.target.value)}
       />
       <button
         onClick={() =>
-          setByPath('foo.bar.baz', (current) => current + ' world!')
+          setState('foo.bar.baz', (current) => current + ' world!')
         }
       >
         {foo.bar.baz}
@@ -54,18 +54,19 @@ export function Component(){
 
 ## Reference
 ```tsx
-const [state, {
+const {
+    state,
     savedState,
     isMatched,
     saveCurrentValue,
     init,
+    setBulkState,
     setState,
-    setByPath,
     setByImmer,
     restoreToInit,
     restoreToSaved,
     restoreByKeyNames,
-  }] = useBulkState<T extends object>(initialState: T = {});
+  } = useBulkState<T extends object>(initialState: T = {});
   ```
 
   - **`state`**_`: T`_&mdash; The current state.
@@ -73,16 +74,16 @@ const [state, {
   - **`isMatched`**_`: boolean`_&mdash; Whether the current state is the same as the saved state.
   - **`saveCurrentValue`**_`: void`_&mdash; Save the current state.
   - **`init(next?: T | ((prev: T) => T) | undefined)`**_`: void`_&mdash; Re-Initialize the `state` and `savedState`.
-  - **`setState(next: T | ((prev: T) => T))`**_`: void`_&mdash; Update the state.
-  - **`setByPath(target: PathString, (current: Value | (current: Value) => Value), afterChange?: (Draft<T>) => void)`**_`: void`_&mdash; 
+  - **`setBulkState(next: T | ((prev: T) => T))`**_`: void`_&mdash; Update the state.
+  - **`setState(target: PathString, (current: Value | (current: Value) => Value), afterChange?: (Draft<T>) => void)`**_`: void`_&mdash; 
     Update the state by path.
     ```tsx
     // ...
-    const [state, {
-      setByPath
-    }] = useBulkState({ count: 0, text: '', foo: { bar: { baz: 'hello' } } });
+    const { state,
+      setState
+    } = useBulkState({ count: 0, text: '', foo: { bar: { baz: 'hello' } } });
     // ...
-    setByPath('foo.bar.baz', (current) => current + ' world!', (draft) => {
+    setState('foo.bar.baz', (current) => current + ' world!', (draft) => {
       // draft.foo.bar.baz === 'hello world!'
       // then do something with draft(like using immer)
     })

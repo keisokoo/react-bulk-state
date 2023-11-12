@@ -3,8 +3,8 @@
  * you can use like this:
  * `type Props = { foo: BulkStateReturnType<typeof yourInitialValue> }`
  * `const YourComponent = ({foo}: Props) => {
- *  const [state, { setByPath }] = foo;
- *  return <div onClick={() => setByPath('bar', 'baz')}>{state.bar}</div>}`
+ *  const [state, { setState }] = foo;
+ *  return <div onClick={() => setState('bar', 'baz')}>{state.bar}</div>}`
  */
 export type BulkStateReturnType<T extends object> = ReturnType<typeof useBulkState<T>>;
 export type SetByPath<T> = <K extends DeepKeyOf<T>>(target: K, data: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), recipe?: ((changedValue: T) => void) | undefined) => void;
@@ -19,23 +19,24 @@ type ValueOfDeepKey<T, K extends string> = K extends `${infer K1}.${infer K2}` ?
  * useBulkState is a react hook that can be used in the same way as useState.
  * But it has some additional features.
  * @example
- * const [state, { setByPath }] = useBulkState({ foo: 'bar' })
- * return <div onClick={() => setByPath('foo', 'baz')}>{state.foo}</div>
+ * const [state, { setState }] = useBulkState({ foo: 'bar' })
+ * return <div onClick={() => setState('foo', 'baz')}>{state.foo}</div>
  * @example
- * const [state, { setByPath }] = useBulkState({ foo: { bar: { baz: 'hello' }} })
- * return <div onClick={() => setByPath('foo.bar.baz', (current) => current + ' world!')}>{state.foo.bar.baz}</div>
+ * const [state, { setState }] = useBulkState({ foo: { bar: { baz: 'hello' }} })
+ * return <div onClick={() => setState('foo.bar.baz', (current) => current + ' world!')}>{state.foo.bar.baz}</div>
  *
  */
-declare const useBulkState: <T extends object>(initialValue: T) => readonly [T, {
-    readonly savedState: T;
-    readonly isMatched: boolean;
-    readonly saveCurrentValue: () => void;
-    readonly init: (next?: T | ((prev: T) => T) | undefined) => void;
-    readonly setState: (next: T | ((prev: T) => T)) => void;
-    readonly setByPath: <K extends DeepKeyOf<T>>(target: K, data: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), recipe?: ((changedValue: T) => void) | undefined) => void;
-    readonly setByImmer: (recipe: (draft: T) => void) => void;
-    readonly restoreToInit: () => void;
-    readonly restoreToSaved: () => void;
-    readonly restoreByKeyNames: (keyNames: (keyof T)[]) => void;
-}];
+declare const useBulkState: <T extends object>(initialValue: T) => {
+    state: T;
+    setState: <K extends DeepKeyOf<T>>(target: K, data: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), recipe?: ((changedValue: T) => void) | undefined) => void;
+    savedState: T;
+    isMatched: boolean;
+    saveCurrentValue: () => void;
+    init: (next?: T | ((prev: T) => T) | undefined) => void;
+    setBulkState: (next: T | ((prev: T) => T)) => void;
+    setByImmer: (recipe: (draft: T) => void) => void;
+    restoreToInit: () => void;
+    restoreToSaved: () => void;
+    restoreByKeyNames: (keyNames: (keyof T)[]) => void;
+};
 export default useBulkState;

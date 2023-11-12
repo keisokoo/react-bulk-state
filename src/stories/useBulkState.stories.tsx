@@ -16,21 +16,26 @@ const initialState = {
     },
   },
 }
-type BulkProperties = BulkStateReturnType<typeof initialState>[1]
+type BulkProperties = BulkStateReturnType<typeof initialState>
 interface DemoChildProps extends BulkProperties {}
 
-const DemoChild = ({ setByPath }: DemoChildProps) => {
+const DemoChild = ({ setState }: DemoChildProps) => {
   return (
     <div>
-      <button onClick={() => setByPath('foo', 'gogo')}>run from child</button>
+      <button onClick={() => setState('foo', 'gogo')}>run from child</button>
     </div>
   )
 }
 export const Demo = () => {
   const data = useBulkState(initialState)
-  const [value, methods] = data
-  const { setByPath, init, saveCurrentValue, restoreToSaved, isMatched } =
-    methods
+  const {
+    state: value,
+    setState,
+    init,
+    saveCurrentValue,
+    restoreToSaved,
+    isMatched,
+  } = data
   React.useEffect(() => {
     init({
       foo: 'bar',
@@ -53,7 +58,7 @@ export const Demo = () => {
       <div>foo: {value.foo}</div>
       <div>
         bar: {value.bar}
-        <button onClick={() => setByPath('bar', (prev) => prev++)}>
+        <button onClick={() => setState('bar', (prev) => prev++)}>
           increment
         </button>
       </div>
@@ -66,14 +71,14 @@ export const Demo = () => {
         <input
           value={value.qux.quux}
           onChange={(e) => {
-            setByPath('qux.quux', e.target.value)
+            setState('qux.quux', e.target.value)
           }}
         />
       </div>
       <div>
         <button
           onClick={() => {
-            setByPath(
+            setState(
               'baz',
               (prev) => !prev,
               (draft) => {
@@ -89,7 +94,7 @@ export const Demo = () => {
         <input
           value={value.foo}
           onChange={(e) => {
-            setByPath('foo', e.target.value)
+            setState('foo', e.target.value)
           }}
         />
       </div>
@@ -97,7 +102,7 @@ export const Demo = () => {
         <input
           value={value.qux.c.d}
           onChange={(e) => {
-            setByPath('qux.c.d', e.target.value)
+            setState('qux.c.d', e.target.value)
           }}
         />
       </div>
@@ -110,7 +115,7 @@ export const Demo = () => {
       <div>
         <button onClick={restoreToSaved}>restoreToSaved</button>
       </div>
-      <DemoChild {...methods} />
+      <DemoChild {...data} />
     </div>
   )
 }

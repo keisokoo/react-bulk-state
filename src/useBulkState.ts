@@ -8,8 +8,8 @@ import { useCallback, useEffect, useRef, useState } from 'react'
  * you can use like this: 
  * `type Props = { foo: BulkStateReturnType<typeof yourInitialValue> }`
  * `const YourComponent = ({foo}: Props) => { 
- *  const [state, { setByPath }] = foo;
- *  return <div onClick={() => setByPath('bar', 'baz')}>{state.bar}</div>}`
+ *  const [state, { setState }] = foo;
+ *  return <div onClick={() => setState('bar', 'baz')}>{state.bar}</div>}`
  */
 export type BulkStateReturnType<T extends object> = ReturnType<typeof useBulkState<T>>;
 export type SetByPath<T> = <K extends DeepKeyOf<T>>(target: K, data: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), recipe?: ((changedValue: T) => void) | undefined) => void
@@ -39,11 +39,11 @@ function propsToPreviousCallback<T, K>(x: unknown): x is (a: T, b: K) => T {
  * useBulkState is a react hook that can be used in the same way as useState. 
  * But it has some additional features.
  * @example
- * const [state, { setByPath }] = useBulkState({ foo: 'bar' })
- * return <div onClick={() => setByPath('foo', 'baz')}>{state.foo}</div>
+ * const [state, { setState }] = useBulkState({ foo: 'bar' })
+ * return <div onClick={() => setState('foo', 'baz')}>{state.foo}</div>
  * @example
- * const [state, { setByPath }] = useBulkState({ foo: { bar: { baz: 'hello' }} })
- * return <div onClick={() => setByPath('foo.bar.baz', (current) => current + ' world!')}>{state.foo.bar.baz}</div>
+ * const [state, { setState }] = useBulkState({ foo: { bar: { baz: 'hello' }} })
+ * return <div onClick={() => setState('foo.bar.baz', (current) => current + ' world!')}>{state.foo.bar.baz}</div>
  * 
  */
 const useBulkState = <T extends object>(initialValue: T) => {
@@ -100,7 +100,7 @@ const useBulkState = <T extends object>(initialValue: T) => {
   }, [])
 
 
-  const setState = useCallback((next: T | ((prev: T) => T)) => {
+  const setBulkState = useCallback((next: T | ((prev: T) => T)) => {
     if (typeof next === 'function') {
       set_state((prev) => next(prev))
     } else {
@@ -108,7 +108,7 @@ const useBulkState = <T extends object>(initialValue: T) => {
     }
   }, [])
 
-  const setByPath = useCallback(
+  const setState = useCallback(
     <K extends DeepKeyOf<T>>(target: K, data: ValueOfDeepKey<T, K> | ((current: ValueOfDeepKey<T, K>, prev: T) => ValueOfDeepKey<T, K>), recipe?: (changedValue: T) => void) => {
       set_state((prev) => {
         let changedValue = produce(prev, (draft) => {
@@ -133,17 +133,18 @@ const useBulkState = <T extends object>(initialValue: T) => {
     []
   )
 
-  return [state, {
+  return {
+    state,
+    setState,
     savedState,
     isMatched,
     saveCurrentValue,
     init,
-    setState,
-    setByPath,
+    setBulkState,
     setByImmer,
     restoreToInit,
     restoreToSaved,
     restoreByKeyNames,
-  }] as const
+  }
 }
 export default useBulkState
