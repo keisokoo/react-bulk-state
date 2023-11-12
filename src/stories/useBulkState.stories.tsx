@@ -78,6 +78,15 @@ export const Demo = () => {
       <div>
         <button
           onClick={() => {
+            setState('qux.c.e', (prev) => prev + 1)
+          }}
+        >
+          qux.c.e count++
+        </button>
+      </div>
+      <div>
+        <button
+          onClick={() => {
             setState(
               'baz',
               (prev) => !prev,

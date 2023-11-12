@@ -3,7 +3,7 @@ import { baseJestConfig } from './jest.config.base';
 
 const config: Config.InitialOptions = {
   ...baseJestConfig,
-  testEnvironment: 'jsdom', // browser-like
+  testEnvironment: 'jsdom',
 }
 
 export default config;

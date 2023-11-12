@@ -1,1 +1,1 @@
-console.log('setupTests.ts')
+console.log('default settings is empty.')

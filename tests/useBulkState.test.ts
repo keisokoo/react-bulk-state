@@ -1,6 +1,7 @@
 import { act, renderHook } from '@testing-library/react'
 import useBulkState from "../src/useBulkState"
 jest.useFakeTimers();
+const initialState = { a: 1, b: 2, c: '3', d: { e: 4 } }
 describe('useBulkState', () => {
   it('should be defined', () => {
     expect(useBulkState).toBeDefined()
@@ -29,6 +30,7 @@ describe('useBulkState', () => {
 
   it('should be return a is 1', () => {
     expect(getHook().result.current.state.a).toBe(1)
+    expect(getHook().result.current.savedState.a).toBe(1)
   });
 
   describe('setBulkState()', () => {
@@ -39,6 +41,10 @@ describe('useBulkState', () => {
         hook.result.current.setBulkState({ a: 3, b: 2, c: '1', d: { e: 5 } })
       );
       expect(hook.result.current.state).toStrictEqual({ a: 3, b: 2, c: '1', d: { e: 5 } });
+      act(() =>
+        hook.result.current.setBulkState((prev) => ({ ...prev, a: 4 }))
+      );
+      expect(hook.result.current.state).toStrictEqual({ a: 4, b: 2, c: '1', d: { e: 5 } });
     })
   })
   describe('setState()', () => {
@@ -52,7 +58,7 @@ describe('useBulkState', () => {
       expect(hook.result.current.state.a).toBe(2);
 
       act(() =>
-        hook.result.current.setState('d.e', 6, (prev) => { prev.c = 'hello' })
+        hook.result.current.setState('d.e', (current) => current + 2, (next) => { next.c = 'hello' })
       );
       expect(hook.result.current.state.d.e).toBe(6);
       expect(hook.result.current.state.c).toBe('hello');
@@ -180,6 +186,15 @@ describe('useBulkState', () => {
       );
       expect(hook.result.current.state.a).toBe(1);
       expect(hook.result.current.state.b).toBe(2);
+      act(() =>
+        hook.result.current.init({ ...initialState, a: 3 })
+      )
+      expect(hook.result.current.state.a).toBe(3);
+      act(() =>
+        hook.result.current.init((prev) => ({ ...prev, a: 4 }))
+      )
+      expect(hook.result.current.state.a).toBe(4);
+
     })
   })
   describe('isMatched', () => {
