@@ -1,7 +1,7 @@
 {
   "name": "react-bulk-state",
   "version": "1.0.0",
-  "description": "",
+  "description": "react-bulk-state is a React state management library.",
   "main": "lib/index.js",
   "module": "esm/index.js",
   "sideEffects": false,
