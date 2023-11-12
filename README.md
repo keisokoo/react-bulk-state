@@ -15,6 +15,8 @@ npm install react-bulk-state
 
 yarn add react-bulk-state
 ```
+## Example
+[Example with CodeSandbox](https://codesandbox.io/s/billowing-wave-qqvpgw?file=/src/App.tsx)
 
 ## Usage
 
